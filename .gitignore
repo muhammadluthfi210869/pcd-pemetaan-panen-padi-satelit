@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Temporary / Scratch test scripts
+scratch/
+.codex/
+codex-9router.ps1
+
+# Temporary Office Lock files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Operating System Files
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,114 @@
+
+PENGOLAHAN CITRA DIGITAL (PCD) — SKRIP EDISI JELAS, LOGIS &amp; KONKRET
+Skrip Presentasi &amp; Daftar Jawaban Inti (First-Principles)
+Mudah Ditangkap, Tidak Sekadar Jargon, &amp; Runtut dari 0
+Judul Resmi Penelitian:
+“Pemetaan Zonasi Kesiapan Panen Padi dari Citra Drone Top-View RGB melalui Normalisasi Iluminasi HSV dan Soil-Water Masking”
+Prinsip Naskah Ini: Menjelaskan setiap langkah dari logika dasar (kenapa masalah muncul, bagaimana piksel bekerja, dan contoh angkanya) sehingga dosen langsung paham 100%.
+BAGIAN 1: Ringkasan 7 Jawaban Inti (Wajib Masuk di Penjelasan Lisan)
+Pertanyaan Kunci
+Logika Dasar (Kenapa Begitu?)
+Kalimat yang Disampaikan di Presentasi
+1. Tujuan: Akurasi vs Biaya Murah?
+Kamera drone murah (RGB) adalah keterbatasan alat di lapangan. Karena pakai kamera RGB biasa, warna lumpur &amp; air sangat mengganggu. Jadi tujuan ilmiah PCD kita adalah MENINGKATKAN AKURASI bacaan warna pada kamera RGB dengan membuang lumpur &amp; air.
+“Tujuan ilmiah kami adalah meningkatkan akurasi pembacaan warna kematangan padi dengan membuang bias lumpur dan air, sehingga drone kamera RGB berbiaya rendah pun bisa menghasilkan peta yang akurat.”
+2. Apakah Melatih Deep Learning?
+TIDAK SAMA SEKALI. Paper Bellis pakai 2D/3D-CNN (training 5–18 jam di server HPC). Kita menggantinya dengan rumus matematika PCD murni (HSV + Morfologi + Indeks Warna) yang jalan beberapa detik di laptop biasa.
+“Kami tidak melatih model Deep Learning seperti paper acuan. Kami menggantinya dengan operasi matriks piksel PCD murni tanpa training, sehingga pemrosesan hanya butuh hitungan detik di laptop standar.”
+3. Kenapa Tidak Pakai Dataset Bellis (AS)?
+Bukan karena negaranya jauh, tapi karena foto Bellis resolusinya terlalu kasar (1 piksel = kotak 50x50 cm di darat), sehingga daun dan lumpur sudah menyatu jadi 1 titik buram. Kita juga memotret di waktu berbeda (Bellis saat padi masih muda/hijau, kita saat padi menguning jelang panen).
+“Kami tidak memakai dataset Bellis karena resolusinya 50 cm per piksel—daun dan lumpur sudah melebur dalam satu titik piksel sehingga tidak bisa di-masking. Kami memakai dataset drone RGB resolusi tinggi multi-fase dari arXiv.”
+4. Kenapa Ubah ke HSV lalu Dikasih CLAHE?
+Di RGB, warna dan cahaya tercampur. Di HSV: H = Jenis Warna, S = Kepekatan, V = Terang-Gelap. Saat awan lewat, sawah jadi belang gelap-terang. CLAHE dipasang di kanal V untuk menerangkan area yang kena bayangan awan (termasuk lumpur di bawahnya), tapi warna asli di H &amp; S tetap utuh.
+“CLAHE bekerja pada seluruh piksel di kanal V (terang-gelap) untuk mengangkat area sawah yang gelap tertutup bayangan awan. Lumpur ikut diterangkan, namun warnanya di kanal H tetap cokelat kusam sehingga tetap mudah dibuang di tahap masking.”
+5. Kenapa Buang ExG &amp; Apa Indikator Warna Padi?
+Rumus ExG = 2G - R - B hanya mencari warna hijau. Padi siap panen warnanya KUNING (campuran Merah tinggi + Hijau tinggi). Kalau pakai ExG, nilai ExG padi kuning jadi nol/negatif dan ikut terhapus dikira tanah! Makanya kita ganti pakai rentang Hue HSV.
+“Kami tidak memakai ExG karena padi siap panen berwarna kuning (kanal Merah dan Hijau sama-sama tinggi), sehingga rumus ExG akan menghasilkan nilai rendah dan justru menghapus padi yang siap dipanen.”
+6. Apa Itu Ekstraksi Indeks (FVC, YPR, TGI)?
+Foto dibagi jadi kotak-kotak (grid). Tiap kotak dihitung 3 angka dari piksel padi saja: FVC = berapa % kotak terisi padi; YPR = berapa % padi yang sudah kuning; TGI = sisa zat hijau daun (makin matang, YPR makin naik dan TGI makin turun).
+“Di tiap kotak petak, kami menghitung 3 angka sederhana: FVC untuk kepadatan tanaman, YPR untuk persentase piksel padi yang sudah menguning, dan penurunan TGI sebagai penguat bahwa zat hijau daun memang sudah berkurang.”
+7. Apa Itu Evaluasi IoU &amp; Dice Coefficient?
+Cara memberi nilai rapor (0–100%) seberapa pintar komputer membuang lumpur/air. Kita warnai manual area padi sebagai Kunci Jawaban (A), lalu ditumpuk dengan hasil tebakan komputer (B). IoU = Area yang pas bertumpuk dibagi total gabungan area A dan B.
+“Untuk menguji ketepatan pemisahan padi dari lumpur, kami menumpuk hasil masker komputer dengan kunci jawaban manual menggunakan rumus IoU dan Dice Coefficient. Nilai mendekati 100% membuktikan pemisahan lumpur sangat akurat.”
+8. Kenapa Menghitung Estimasi Tonase (Kg) &amp; Alokasi Truk? Apakah Ini Menimbang Tanpa Sensor NIR?
+TIDAK MENIMBANG SECARA GAIB. Kami tidak melatih model Machine Learning regresi fiktif. Melainkan mengalikan Luas Panen Bersih (Net Canopy Area) hasil FVC dengan standar produktivitas resmi BPS sawah irigasi Karawang (6 ton/ha). Tujuannya menjawab tuntas masalah batas kritis 24 jam: berapa truk yang harus dikirim ke petak tersebut hari itu juga!
+“Kami tidak mengklaim kamera RGB bisa menimbang berat bulir seperti sensor NIR mahal. Kami menghitung Luas Bersih Tanaman efektif dari kepadatan FVC, lalu mengalikannya dengan standar resmi BPS Karawang (6 ton/ha). Dari situ, sistem langsung tahu petak tersebut menghasilkan sekian ton gabah dan membutuhkan sekian unit truk Colt Diesel untuk dijemput sebelum 24 jam.”
+BAGIAN 2: Tabel Tegas Indikator Warna Padi &amp; Legenda Zonasi
+Status Kesiapan Panen
+Warna Visual Padi di Sawah
+Indikator Angka di Komputer (HSV, YPR, TGI)
+Warna Peta &amp; Tindakan Logistik
+1. Belum Siap Panen
+(Fase Vegetatif / Booting)
+Daun masih hijau segar merata, bulir baru mulai terisi.
+• Hue (H): Area Hijau (45–85)
+• YPR (Persen Kuning): &lt; 20%
+• TGI (Zat Hijau): Tinggi
+ZONA HIJAU (Prioritas 3)
+Jangan dipanen dulu, tunda pengiriman truk.
+2. Menuju Siap Panen
+(Fase Pemasakan Awal)
+Campuran hijau dan kuning (ujung malai menguning, daun bawah masih hijau).
+• Hue (H): Bergeser (30–50)
+• YPR (Persen Kuning): 30% – 65%
+• TGI (Zat Hijau): Mulai turun
+ZONA KUNING (Prioritas 2)
+Siapkan jadwal panen dalam beberapa hari ke depan.
+3. Siap Panen &amp; Harus Segera Dipanen!
+(Fase Matang Penuh)
+80%–95% bulir dan tajuk sudah kuning keemasan hingga kuning kecokelatan.
+• Hue (H): Area Kuning (20–35)
+• YPR (Persen Kuning): &gt; 70%
+• TGI (Zat Hijau): Sangat rendah
+ZONA MERAH (Prioritas 1)
+Segera panen &amp; jemput ke mesin pengering (&lt;24 jam)!
+BAGIAN 3: Naskah Skrip Pembicara 1 (Orang Pertama — Masalah, Paper, &amp; Logika Gap)
+3.1 Pembukaan, Urgensi 24 Jam, &amp; Tujuan Sebenarnya (00.00 – 02.15)
+“Selamat pagi/siang Bapak dan Ibu dosen penguji. Izin memaparkan progres dan rancangan pra-TUBES Pengolahan Citra Digital kami yang berjudul: ‘Pemetaan Zonasi Kesiapan Panen Padi dari Citra Drone Top-View RGB melalui Normalisasi Iluminasi HSV dan Soil-Water Masking’.
+Topik ini berangkat dari masalah nyata kehilangan pangan pascapanen (food loss) padi di Indonesia yang menurut data Bappenas dan BRIN mencapai sekitar 10 persen dari total produksi. Mengapa gabah banyak yang rusak setelah dipanen? Karena di daerah beriklim tropis basah seperti di Sambas, Kalimantan Barat, gabah dipanen dalam kondisi basah dengan kadar air tinggi (22 hingga 26 persen). Gabah basah ini punya batas waktu kritis maksimal 24 jam. Kalau dalam 24 jam gabah menumpuk di pinggir sawah karena terlambat dijemput truk menuju mesin pengering, gabah akan mengalami fermentasi, panas di dalam karung, dan membusuk.
+Masalahnya, saat panen raya di hamparan ratusan hektar, kita tidak tahu petak sawah mana yang bulir padinya sudah kuning matang penuh duluan dan mana yang masih hijau. Untuk memetakannya dengan biaya terjangkau, kita hanya bisa memakai drone dengan kamera RGB biasa (kamera foto standar), bukan kamera multispektral seharga ratusan juta rupiah.
+Namun, karena hanya memakai kamera RGB biasa, bacaan warna kematangan padi dari udara sering salah akibat terganggu warna lumpur dan pantulan air. Karena itu, tujuan ilmiah penelitian kami sangat jelas: MENINGKATKAN AKURASI pembacaan warna kesiapan panen pada citra drone RGB dengan cara menutup celah gangguan latar belakang (membuang lumpur, tanah, dan silau air) menggunakan algoritma Pengolahan Citra Digital murni.”
+3.2 Bedah Paper Acuan Q1 &amp; Perbedaan Kondisi Sawah (02.15 – 04.30)
+[Aksi Visual: Tunjukkan PDF paper Bellis et al. (2022) di Frontiers in Plant Science, highlight kalimat keterbatasan soal soil/weed pixels]
+“Sebagai landasan ilmiah, kami mengacu pada paper Q1 karya Bellis dan rekan-rekan tahun 2022 di jurnal Frontiers in Plant Science yang memotret sawah 16 hektar di Arkansas, Amerika Serikat. Mereka memprediksi hasil panen memakai kamera multispektral mahal dan melatih model Deep Learning 2D-CNN serta 3D-CNN di komputer server HPC selama 5 hingga 18 jam.
+Mengapa metode mereka tidak bisa langsung dipakai untuk kasus kita, dan apa celah (gap) yang kami temukan?
+Pertama adalah perbedaan waktu potret dan kondisi geografis: Bellis memotret sawah sekitar satu bulan SEBELUM panen (fase booting), saat seluruh daun padi masih hijau segar, untuk meramal berat panen. Sedangkan untuk mengatur jadwal truk panen di Indonesia, kita memotret MENJELANG PANEN saat padi berubah warna dari hijau menjadi kuning emas, di mana kondisi sawah tropis kita masih becek berlumpur dan berpetak-petak.
+Kedua adalah celah algoritma yang diakui sendiri oleh Bellis di bagian Discussion: pipeline pra-pemrosesan mereka sama sekali tidak memisahkan piksel tanah dan gulma sebelum menghitung rata-rata warna petak. Selain itu, kami tidak menggunakan dataset foto milik Bellis karena resolusi foto mereka sangat kasar—satu titik piksel mewakili kotak 50 kali 50 sentimeter di tanah, sehingga daun padi dan lumpur sudah melebur menjadi satu titik buram yang tidak mungkin dipisahkan lagi.
+Karena itu, kami tidak melatih ulang model Deep Learning mereka yang berat, melainkan merancang algoritma Pengolahan Citra Digital murni yang memproses langsung matriks piksel pada citra drone RGB resolusi tinggi multi-fase dari repositori publik arXiv.”
+3.3 Logika Dasar Gap PCD: Kenapa Lumpur, Air, &amp; Rumus Hijau Bikin Salah Hitung? (04.30 – 06.30)
+[Aksi Visual: Tunjukkan foto sawah top-view yang memperlihatkan padi kuning, sela lumpur gelap, dan pantulan silau air putih]
+“Bagaimana persisnya lumpur dan air merusak hitungan komputer jika tidak dibuang dulu?
+Pada foto drone dari atas, daun dan bulir padi tidak menutup tanah 100 persen rapat. Di sela-selanya ada lumpur gelap dan genangan air yang memantulkan cahaya matahari seperti cermin (disebut sun glint), yang nilainya putih mentok di angka 255. Kalau komputer langsung menghitung rata-rata warna satu petak tanpa membuang lumpur dan air, maka warna kuning padi yang siap panen akan tercampur dengan warna cokelat lumpur dan putih air. Akibatnya, petak yang seharusnya sudah matang penuh terbaca salah oleh komputer.
+Selain itu, di banyak penelitian pertanian, orang biasa memakai rumus pencari warna hijau bernama Excess Green (ExG = 2 kali Hijau dikurangi Merah dikurangi Biru) untuk membuang tanah. Tetapi kami menemukan bahwa rumus ExG TIDAK BISA dipakai untuk padi siap panen! Mengapa? Karena secara fisika cahaya pada kamera RGB, warna KUNING padi matang itu terbentuk dari campuran lampu Merah yang tinggi dan Hijau yang tinggi. Saat nilai Merah naik menyamai Hijau, hasil hitungan rumus ExG langsung anjlok menjadi nol atau minus! Akibatnya, kalau kita pakai ExG untuk membuang lumpur, padi kuning yang justru paling siap dipanen malah ikut terhapus oleh komputer karena dianggap bukan tanaman hijau.
+Untuk mengatasi masalah tersebut secara tuntas dari akarnya, rekan saya akan menjelaskan 4 tahapan algoritma yang kami bangun.”
+BAGIAN 4: Naskah Skrip Pembicara 2 (Orang Kedua — Algoritma dari 0 &amp; Evaluasi)
+4.1 Tahap 1 &amp; 2: Penjelasan dari 0 tentang HSV, CLAHE, &amp; Masking Lumpur/Air (06.30 – 09.30)
+[Aksi Visual: Tunjukkan diagram alur 4 tahap dan contoh visual perubahan dari foto asli ke masker biner]
+“Terima kasih. Saya akan menjelaskan bagaimana 4 tahap algoritma kami bekerja mulai dari prinsip dasarnya.
+Tahap Pertama adalah Normalisasi Cahaya dengan mengubah RGB ke HSV lalu menerapkan CLAHE.
+Mengapa foto kamera biasa (RGB) harus diubah dulu ke ruang warna HSV? Karena di dalam format RGB (Merah, Hijau, Biru), informasi ‘warna asli benda’ dan ‘terangnya cahaya matahari’ tercampur aduk. Saat ada bayangan awan lewat di atas sawah, angka R, G, dan B ikut turun drastis sehingga komputer bingung. Dengan mengubahnya ke HSV, komputer memisahkan tiga hal: H (Hue) adalah jenis warnanya di roda pelangi (apakah hijau, kuning, atau cokelat), S (Saturation) adalah kepekatan warnanya (pekat atau putih pucat), dan V (Value) adalah tingkat terang-gelapnya.
+Saat sebagian sawah tertutup bayangan awan, yang berubah sebenarnya hanya kanal V (terang-gelapnya saja). Maka kami memasang algoritma CLAHE (seperti fitur Auto-Brightness lokal) HANYA pada kanal V. Perlu dicatat: CLAHE ini otomatis menerangkan seluruh isi foto yang kena bayangan awan—baik daun padi maupun lumpur di bawahnya ikut diterangkan. Namun karena warna aslinya di kanal H dan S tidak disentuh, lumpur yang diterangkan tetap berwarna cokelat kusam dan padi tetap kuning atau hijau, sehingga siap dipisahkan dengan mudah di tahap kedua.
+Tahap Kedua adalah Soil and Water Masking (Membuang Air, Lumpur, dan Tanah).
+Kami menyaring setiap titik piksel menggunakan 3 aturan di ruang HSV tadi:
+1. Membuang Silau Air: Pantulan matahari di air warnanya putih silau, artinya sangat terang (V tinggi di atas 210) tapi warnanya pucat tidak berpigmen (S sangat rendah di bawah 35). Piksel dengan ciri ini langsung kami buang.
+2. Membuang Lumpur Gelap: Lumpur basah di sela bawah tanaman warnanya gelap dan kusam (nilai V dan S sama-sama rendah), sehingga langsung kami buang.
+3. Mengambil Hanya Tanaman Padi (Hijau sampai Kuning): Alih-alih memakai rumus ExG yang gagal pada padi kuning tadi, kami memotong otomatis kanal Hue (menggunakan metode Otsu/K-Means) khusus pada rentang warna tanaman padi, yaitu dari warna Kuning Emas (Hue sekitar 20) sampai Hijau Segar (Hue sekitar 85). Tanah kering yang berwarna cokelat kemerahan otomatis berada di luar angka tersebut dan terbuang. Terakhir, kami rapikan dengan operasi Morfologi Opening dan Closing 3x3 agar bintik kotoran hilang dan lubang kecil di daun tertutup.”
+4.2 Tahap 3 &amp; 4: Cara Kerja FVC, YPR, TGI, &amp; Peta 3 Zona Warna (09.30 – 12.00)
+[Aksi Visual: Tunjukkan ilustrasi pembagian kotak Grid dan peta warna Hijau, Kuning, Merah]
+“Tahap Ketiga adalah Ekstraksi Indeks Kematangan pada Kotak Petak (Grid).
+Setelah seluruh titik lumpur dan air dihapus menjadi hitam kosong, foto sawah kami potong-potong menjadi kotak-kotak kecil seperti papan catur (misalnya ukuran 128 kali 128 piksel per kotak). Di setiap satu kotak, komputer hanya menghitung titik piksel padi yang tersisa untuk mencari 3 angka sederhana:
+1. Angka pertama adalah FVC (Fractional Vegetation Cover), yaitu: ‘Seberapa penuh kotak ini terisi tanaman padi?’. Kalau dari 100 titik di dalam kotak ternyata ada 80 titik padi dan 20 titik bekas lumpur, berarti kepadatan FVC-nya 80 persen. Kalau FVC-nya di bawah 10 persen—misalnya kotak itu ternyata jalan tanah atau parit—kotak tersebut langsung diabaikan.
+2. Angka kedua adalah YPR (Yellow Pixel Ratio), yaitu: ‘Dari seluruh titik padi di kotak ini, berapa persen yang warnanya sudah berubah jadi kuning emas?’. Ini adalah penentu utama kesiapan panen. Makin besar persentase kuningnya (YPR), berarti kotak sawah itu makin matang.
+3. Angka ketiga adalah TGI (Triangular Greenness Index) dengan rumus Hijau dikurangi 0,39 Merah dikurangi 0,61 Biru. Sederhananya, TGI ini adalah pengukur sisa zat hijau daun (klorofil). Saat padi masih muda dan hijau, angka TGI-nya tinggi. Saat padi matang dan menguning, warna hijaunya hilang sehingga angka TGI-nya turun drastis. Jadi TGI ini bekerja sebagai ‘saksi penguat’ bagi YPR: kalau di satu kotak angka kuning (YPR)-nya tinggi DAN angka hijau (TGI)-nya rendah, komputer yakin 100 persen petak itu sudah matang.
+Tahap Keempat adalah Pembuatan Peta Zonasi Kesiapan Panen.
+Berdasarkan nilai YPR dan TGI tadi, komputer mengelompokkan setiap kotak secara otomatis menjadi 3 zona warna dengan arti yang sangat tegas:
+• ZONA HIJAU (Prioritas 3 — Belum Siap Panen): Daun masih hijau segar, persentase kuning (YPR) di bawah 20 persen, dan zat hijau (TGI) masih tinggi. Truk belum perlu ke sini.
+• ZONA KUNING (Prioritas 2 — Menuju Siap Panen): Warna padi campuran hijau dan kuning (YPR sekitar 30 sampai 65 persen), artinya sedang fase pengisian bulir dan siap panen beberapa hari lagi.
+• ZONA MERAH (Prioritas 1 — Siap Panen &amp; Harus Segera Dipanen!): Lebih dari 70 persen tajuk sudah kuning keemasan (YPR tinggi) dan TGI sangat rendah. Zona Merah inilah yang wajib dipotong dan dijemput truk menuju mesin pengering hari itu juga agar tidak lewat batas 24 jam.”
+4.3 Cara Menguji Keberhasilan (IoU, Dice, &amp; Uji Ablasi) + Penutup (12.00 – 13.30)
+“Terakhir, bagaimana cara kami membuktikan secara ilmiah bahwa program kami ini benar-benar pintar dan berhasil menutup gap paper acuan? Kami menggunakan tiga pengujian sederhana namun terukur:
+Pertama adalah menguji kepintaran pembuangan lumpur menggunakan nilai IoU (Intersection over Union) dan Dice Coefficient. Cara kerjanya seperti mengoreksi ujian: kami mengambil sampel foto sawah, lalu kami warnai sendiri secara manual pakai tangan mana batas daun padi yang benar sebagai ‘Kunci Jawaban’. Setelah itu, hasil tebakan masker komputer kami tumpuk di atas Kunci Jawaban tadi. Jika tebakan komputer pas menumpuk sempurna di atas kunci jawaban, nilainya 100 persen (atau 1,0). Semakin tinggi nilai IoU dan Dice-nya, berarti komputer makin akurat membuang lumpur dan air.
+Kedua adalah Uji Ketepatan Zona pada 100 kotak sampel, untuk mencocokkan apakah kotak yang dibilang ‘Merah (Siap Panen)’ oleh komputer memang benar-benar padi fase matang pada data aslinya.
+Ketiga adalah Studi Ablasi (Uji Banding): Kami membandingkan hasil tebakan komputer TANPA metode kami (cara lama Bellis yang langsung menghitung rata-rata warna beserta lumpurnya, serta cara lama memakai rumus hijau ExG) MELAWAN hasil DENGAN metode HSV + Masking kami. Dari perbandingan ini akan terlihat jelas seberapa besar peningkatan akurasi setelah lumpur dibuang dan setelah ExG diganti dengan HSV.
+Demikian pemaparan lengkap dari kelompok kami, mulai dari masalah lapangan, celah paper acuan, logika dasar algoritma, hingga cara pengujiannya. Terima kasih, selanjutnya kami mohon masukan dan arahan dari Bapak dan Ibu dosen.”
+

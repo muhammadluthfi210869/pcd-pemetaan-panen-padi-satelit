@@ -1,0 +1,26 @@
+================================================================================
+PETUNJUK PENGGUNAAN DATASET CITRA SATELIT 100% MURNI SAWAH ZOOM 18 (GSD ~0.6m)
+PRA-TUBES PENGOLAHAN CITRA DIGITAL (PCD) POLBAN - DIVERSIFIKASI MAKSIMAL
+================================================================================
+
+1. DESKRIPSI DATASET:
+   Dataset ini berisi 50 pasang (100 citra murni) citra satelit resolusi tinggi
+   (Zoom Level 18, GSD ~0.6 meter per piksel) yang DIKURASI KHUSUS 100% PURE SAWAH
+   DENGAN 100 CITRA BERBEDA (NOL DUPLIKAT / 100% UNIQUE TILES).
+   
+   Bebas 100% dari perumahan, atap genteng, dan jalan aspal, serta memiliki variasi
+   kondisi kanopi padi yang sangat kaya (fase vegetatif hijau muda, hijau pekat,
+   generatif malai bunting, hingga kanopi kuning keemasan matang siap panen).
+
+2. CAKUPAN SENTRA SAWAH UTAMA JAWA BARAT:
+   - Karawang: Rawamerta, Jayakerta, Kutawaluya, Tempuran, Cilamaya, Pedes, Cibuaya, Lemahabang
+   - Indramayu: Losarang, Kandanghaur, Sukra, Anjatan, Terisi, Gabuswetan
+
+3. DISTRIBUSI KELAS (50 PASANG / 100 CITRA UNIK):
+   - PAIR_001 s.d. PAIR_025 (25 Pasang / 50 Citra Unik): SUKSES PANEN
+     (Before: Beragam kondisi kanopi padi rimbun -> After: Tunggul jerami & tanah olah)
+   - PAIR_026 s.d. PAIR_038 (13 Pasang / 26 Citra Unik): GAGAL PANEN - BANJIR (PUSO AIR)
+     (Before: Kanopi padi -> After: Genangan air banjir keruh, lumpur pekat, & silau air)
+   - PAIR_039 s.d. PAIR_050 (12 Pasang / 24 Citra Unik): GAGAL PANEN - KEKERINGAN (PUSO KERING)
+     (Before: Kanopi padi -> After: Hamparan tanah retak gersang tanpa air)
+================================================================================

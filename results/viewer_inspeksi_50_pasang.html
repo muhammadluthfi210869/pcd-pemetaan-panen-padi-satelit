@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri Inspeksi 50 Pasang Hasil Pemrosesan PCD & Logistik Panen</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f8; margin: 0; padding: 25px; color: #222; }
+    h1 { text-align: center; margin-bottom: 5px; color: #111; font-size: 24px; }
+    p.sub { text-align: center; color: #666; margin-top: 0; margin-bottom: 25px; font-size: 14px; }
+    .filters { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+    .btn { padding: 8px 18px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 20px; font-weight: bold; font-size: 13px; transition: all 0.2s; }
+    .btn:hover, .btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 22px; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #e2e8f0; }
+    .card-header { padding: 10px 14px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border-bottom: 1px solid #edf2f7; }
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; font-weight: bold; }
+    .badge-sukses { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-banjir { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+    .badge-kering { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+    .card img { width: 100%; height: auto; display: block; cursor: pointer; transition: transform 0.2s; }
+    .card img:hover { transform: scale(1.01); }
+    .card-body { padding: 12px 14px; font-size: 12.5px; line-height: 1.5; color: #334155; background: #fff; }
+    .metric-row { display: flex; justify-content: space-between; margin-bottom: 4px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 3px; }
+    .metric-label { color: #64748b; font-weight: 500; }
+    .metric-value { font-weight: bold; color: #0f172a; }
+    .logistics-box { margin-top: 8px; padding: 7px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; }
+    .logistics-sukses { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .logistics-gagal { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    #modal { display: none; position: fixed; z-index: 999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; }
+    #modal img { max-width: 95%; max-height: 95%; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  </style>
+</head>
+<body>
+  <h1>Galeri Inspeksi 50 Pasang Hasil Pemrosesan PCD & Logistik Panen</h1>
+  <p class="sub">Citra Satelit Resolusi Tinggi Zoom 18 (GSD ~0.6m/px) — Kabupaten Karawang & Indramayu</p>
+
+  <div class="filters">
+    <button class="btn active" onclick="filterCards('all', this)">Semua (50)</button>
+    <button class="btn" onclick="filterCards('SUKSES_PANEN', this)">Sukses Panen (25)</button>
+    <button class="btn" onclick="filterCards('GAGAL_BANJIR', this)">Gagal Banjir (13)</button>
+    <button class="btn" onclick="filterCards('GAGAL_KEKERINGAN', this)">Gagal Kekeringan (12)</button>
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+
+  <div id="modal" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Detail">
+  </div>
+
+  <script>
+    const dataset = [{"pid": "PAIR_001", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.044967, "lon": 107.335052, "fvc": 49.4, "ypr": 0.0, "delta_fvc": 44.9, "net_area_ha": 1.166, "yield_kg": 6996, "yield_ton": 7.0, "sacks": 117, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_002", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.047699, "lon": 107.341919, "fvc": 74.6, "ypr": 0.0, "delta_fvc": 74.2, "net_area_ha": 1.761, "yield_kg": 10566, "yield_ton": 10.57, "sacks": 177, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_003", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.047699, "lon": 107.339172, "fvc": 68.8, "ypr": 0.0, "delta_fvc": 67.5, "net_area_ha": 1.624, "yield_kg": 9744, "yield_ton": 9.74, "sacks": 163, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_004", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.044967, "lon": 107.340546, "fvc": 93.4, "ypr": 0.0, "delta_fvc": 93.3, "net_area_ha": 2.203, "yield_kg": 13218, "yield_ton": 13.22, "sacks": 221, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_005", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.23749, "lon": 107.439423, "fvc": 96.6, "ypr": 0.0, "delta_fvc": 74.4, "net_area_ha": 2.28, "yield_kg": 13680, "yield_ton": 13.68, "sacks": 228, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_006", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.236125, "lon": 107.439423, "fvc": 99.1, "ypr": 0.0, "delta_fvc": 94.6, "net_area_ha": 2.338, "yield_kg": 14028, "yield_ton": 14.03, "sacks": 234, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_007", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.047699, "lon": 107.335052, "fvc": 99.8, "ypr": 0.0, "delta_fvc": 97.4, "net_area_ha": 2.356, "yield_kg": 14136, "yield_ton": 14.14, "sacks": 236, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_008", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.238855, "lon": 107.439423, "fvc": 99.8, "ypr": 0.0, "delta_fvc": 81.7, "net_area_ha": 2.355, "yield_kg": 14130, "yield_ton": 14.13, "sacks": 236, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_009", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.051796, "lon": 107.333679, "fvc": 64.5, "ypr": 0.0, "delta_fvc": 52.9, "net_area_ha": 1.522, "yield_kg": 9132, "yield_ton": 9.13, "sacks": 153, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_010", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.046333, "lon": 107.335052, "fvc": 54.3, "ypr": 0.1, "delta_fvc": 44.7, "net_area_ha": 1.281, "yield_kg": 7686, "yield_ton": 7.69, "sacks": 129, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_011", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.046333, "lon": 107.344666, "fvc": 59.7, "ypr": 0.1, "delta_fvc": 58.5, "net_area_ha": 1.41, "yield_kg": 8460, "yield_ton": 8.46, "sacks": 141, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_012", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.05043, "lon": 107.335052, "fvc": 86.8, "ypr": 0.2, "delta_fvc": 76.3, "net_area_ha": 2.05, "yield_kg": 12300, "yield_ton": 12.3, "sacks": 205, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_013", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.232029, "lon": 107.428436, "fvc": 86.3, "ypr": 2.0, "delta_fvc": 73.3, "net_area_ha": 2.036, "yield_kg": 12216, "yield_ton": 12.22, "sacks": 204, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_014", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.23476, "lon": 107.439423, "fvc": 91.7, "ypr": 2.8, "delta_fvc": 89.0, "net_area_ha": 2.163, "yield_kg": 12978, "yield_ton": 12.98, "sacks": 217, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_015", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.23476, "lon": 107.438049, "fvc": 90.4, "ypr": 3.7, "delta_fvc": 85.3, "net_area_ha": 2.134, "yield_kg": 12804, "yield_ton": 12.8, "sacks": 214, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_016", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.054527, "lon": 107.335052, "fvc": 79.7, "ypr": 5.7, "delta_fvc": 79.6, "net_area_ha": 1.88, "yield_kg": 11280, "yield_ton": 11.28, "sacks": 188, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_017", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.24022, "lon": 107.42981, "fvc": 42.5, "ypr": 7.2, "delta_fvc": 29.3, "net_area_ha": 1.004, "yield_kg": 6024, "yield_ton": 6.02, "sacks": 101, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_018", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.233395, "lon": 107.439423, "fvc": 99.3, "ypr": 12.6, "delta_fvc": 85.3, "net_area_ha": 2.344, "yield_kg": 14064, "yield_ton": 14.06, "sacks": 235, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_019", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.236125, "lon": 107.436676, "fvc": 76.0, "ypr": 16.6, "delta_fvc": 70.6, "net_area_ha": 1.793, "yield_kg": 10758, "yield_ton": 10.76, "sacks": 180, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_020", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.054527, "lon": 107.343292, "fvc": 87.4, "ypr": 32.1, "delta_fvc": 87.2, "net_area_ha": 2.062, "yield_kg": 12372, "yield_ton": 12.37, "sacks": 207, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_021", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.230664, "lon": 107.439423, "fvc": 92.7, "ypr": 40.3, "delta_fvc": 85.8, "net_area_ha": 2.188, "yield_kg": 13128, "yield_ton": 13.13, "sacks": 219, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_022", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.23476, "lon": 107.435303, "fvc": 67.8, "ypr": 43.1, "delta_fvc": 52.1, "net_area_ha": 1.599, "yield_kg": 9594, "yield_ton": 9.59, "sacks": 160, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_023", "kat": "SUKSES_PANEN", "kab": "Indramayu", "kec": "Gabuswetan", "lat": -6.459964, "lon": 108.215332, "fvc": 59.1, "ypr": 48.9, "delta_fvc": 55.9, "net_area_ha": 1.395, "yield_kg": 8370, "yield_ton": 8.37, "sacks": 140, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_024", "kat": "SUKSES_PANEN", "kab": "Karawang", "kec": "Lemahabang", "lat": -6.230664, "lon": 107.436676, "fvc": 71.1, "ypr": 48.7, "delta_fvc": 60.9, "net_area_ha": 1.677, "yield_kg": 10062, "yield_ton": 10.06, "sacks": 168, "trucks": 2, "action": "SIAP JEMPUT: 2 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_025", "kat": "SUKSES_PANEN", "kab": "Indramayu", "kec": "Losarang", "lat": -6.408107, "lon": 108.143921, "fvc": 94.4, "ypr": 53.7, "delta_fvc": 89.3, "net_area_ha": 2.229, "yield_kg": 13374, "yield_ton": 13.37, "sacks": 223, "trucks": 3, "action": "SIAP JEMPUT: 3 Truk Colt Diesel ke Dryer (< 24 Jam)"}, {"pid": "PAIR_026", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Sukra", "lat": -6.324853, "lon": 107.970886, "fvc": 74.2, "ypr": 54.8, "delta_fvc": 74.2, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_027", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Sukra", "lat": -6.316663, "lon": 107.975006, "fvc": 67.9, "ypr": 59.9, "delta_fvc": 67.4, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_028", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Losarang", "lat": -6.405378, "lon": 108.154907, "fvc": 63.2, "ypr": 61.9, "delta_fvc": 48.2, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_029", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Sukra", "lat": -6.313934, "lon": 107.975006, "fvc": 69.9, "ypr": 64.2, "delta_fvc": 68.7, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_030", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Cibuaya", "lat": -6.044967, "lon": 107.339172, "fvc": 63.4, "ypr": 66.2, "delta_fvc": 34.7, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_031", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Kutawaluya", "lat": -6.156939, "lon": 107.363892, "fvc": 46.2, "ypr": 65.4, "delta_fvc": 44.5, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_032", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Sukra", "lat": -6.318028, "lon": 107.97226, "fvc": 50.3, "ypr": 72.6, "delta_fvc": 44.7, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_033", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Kutawaluya", "lat": -6.163766, "lon": 107.365265, "fvc": 52.2, "ypr": 72.1, "delta_fvc": 45.4, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_034", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Kutawaluya", "lat": -6.158305, "lon": 107.363892, "fvc": 53.3, "ypr": 81.8, "delta_fvc": 51.1, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_035", "kat": "GAGAL_BANJIR", "kab": "Indramayu", "kec": "Sukra", "lat": -6.315299, "lon": 107.965393, "fvc": 62.6, "ypr": 79.5, "delta_fvc": 57.3, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_036", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Kutawaluya", "lat": -6.158305, "lon": 107.369385, "fvc": 62.4, "ypr": 80.6, "delta_fvc": 59.4, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_037", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.110515, "lon": 107.30896, "fvc": 69.9, "ypr": 82.1, "delta_fvc": 69.9, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_038", "kat": "GAGAL_BANJIR", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.113246, "lon": 107.310333, "fvc": 50.0, "ypr": 85.8, "delta_fvc": 50.0, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_039", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.105053, "lon": 107.31308, "fvc": 72.1, "ypr": 83.4, "delta_fvc": 72.1, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_040", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.105053, "lon": 107.307587, "fvc": 59.9, "ypr": 86.0, "delta_fvc": 59.8, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_041", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Cilamaya", "lat": -6.253872, "lon": 107.547913, "fvc": 60.8, "ypr": 88.5, "delta_fvc": 59.8, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_042", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Tempuran", "lat": -6.204725, "lon": 107.483368, "fvc": 73.0, "ypr": 88.3, "delta_fvc": 58.2, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_043", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Cilamaya", "lat": -6.255237, "lon": 107.545166, "fvc": 46.9, "ypr": 89.3, "delta_fvc": 29.6, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_044", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.107784, "lon": 107.30484, "fvc": 58.1, "ypr": 88.5, "delta_fvc": 57.6, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_045", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Cilamaya", "lat": -6.245681, "lon": 107.553406, "fvc": 63.6, "ypr": 90.1, "delta_fvc": 60.5, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_046", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Cilamaya", "lat": -6.244316, "lon": 107.545166, "fvc": 50.4, "ypr": 91.1, "delta_fvc": 39.6, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_047", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Tempuran", "lat": -6.199264, "lon": 107.476501, "fvc": 59.1, "ypr": 93.3, "delta_fvc": 54.7, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_048", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Jayakerta", "lat": -6.109149, "lon": 107.303467, "fvc": 63.7, "ypr": 93.9, "delta_fvc": 63.7, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_049", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Tempuran", "lat": -6.196534, "lon": 107.483368, "fvc": 89.4, "ypr": 93.7, "delta_fvc": 77.8, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}, {"pid": "PAIR_050", "kat": "GAGAL_KEKERINGAN", "kab": "Karawang", "kec": "Tempuran", "lat": -6.200629, "lon": 107.481995, "fvc": 77.1, "ypr": 95.0, "delta_fvc": 64.0, "net_area_ha": 0.0, "yield_kg": 0, "yield_ton": 0.0, "sacks": 0, "trucks": 0, "action": "PUSO / BATALKAN TRUK: Terbitkan Tiket Klaim Asuransi AUTP"}];
+
+    const grid = document.getElementById('cardGrid');
+    dataset.forEach(d => {
+      let badgeClass = 'badge-sukses';
+      let badgeLabel = 'Sukses Panen';
+      let logClass = 'logistics-sukses';
+      let logText = `🚚 Kebutuhan: ${d.trucks} Truk Colt Diesel (${d.sacks} karung) | Jemput < 24 Jam`;
+
+      if (d.kat === 'GAGAL_BANJIR') { 
+        badgeClass = 'badge-banjir'; 
+        badgeLabel = 'Puso Banjir'; 
+        logClass = 'logistics-gagal';
+        logText = `⚠️ Status Puso Banjir: 0 Truk (Batalkan) | Terbitkan Tiket Klaim AUTP`;
+      } else if (d.kat === 'GAGAL_KEKERINGAN') { 
+        badgeClass = 'badge-kering'; 
+        badgeLabel = 'Puso Kekeringan'; 
+        logClass = 'logistics-gagal';
+        logText = `⚠️ Status Puso Kering: 0 Truk (Batalkan) | Terbitkan Tiket Klaim AUTP`;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-kat', d.kat);
+      const imgSrc = 'detail_pemrosesan_50_pasang/' + d.pid + '_detail_pemrosesan.png';
+
+      card.innerHTML = `
+        <div class="card-header">
+          <span>${d.pid} (${d.kab} - Kec. ${d.kec})</span>
+          <span class="badge ${badgeClass}">${badgeLabel}</span>
+        </div>
+        <img src="${imgSrc}" loading="lazy" alt="${d.pid}" onclick="openModal('${imgSrc}')">
+        <div class="card-body">
+          <div class="metric-row">
+            <span class="metric-label">Kepadatan Kanopi (FVC) / Matang (YPR):</span>
+            <span class="metric-value">${d.fvc}% / ${d.ypr}%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Luas Bersih Panen / Total Petak:</span>
+            <span class="metric-value">${d.net_area_ha} ha / 2.36 ha</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Estimasi Produksi Gabah (6 ton/ha):</span>
+            <span class="metric-value">${d.yield_kg.toLocaleString()} kg (${d.yield_ton} ton)</span>
+          </div>
+          <div class="logistics-box ${logClass}">
+            ${logText}
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    function filterCards(kat, btn) {
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.card').forEach(c => {
+        if (kat === 'all' || c.getAttribute('data-kat') === kat) {
+          c.style.display = 'block';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+
+    function openModal(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('modal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
